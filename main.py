@@ -1,5 +1,6 @@
 import uvicorn
 import json
+
 from settings import app
 from src.transport import (
     hotel_create as h_create,
@@ -44,17 +45,13 @@ def bookings_list():
 
 
 if __name__ == '__main__':
-    # TODO (Документация): добавить что за запуск приложения и как этот запуск работает
-
     file = open('is_db_created.json', 'r')
     is_created = json.load(file)
     file.close()
 
     if not is_created['tables_created']:
-
         # Если таблицы успешно созданы, то изменения записываются в файл
         if create_tables():
-            print("Created")
             file = open('is_db_created.json', 'w')
             json.dump({"tables_created": True}, file)
 

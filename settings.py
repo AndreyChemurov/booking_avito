@@ -2,14 +2,12 @@ from fastapi import FastAPI
 import os
 
 
-# TODO (Документация): что за приложение?
 app = FastAPI()
 
-# TODO (Документация): что за параметры?
 connection_params = {
-    "database": os.environ.get('POSTGRES_DATABASE'),
+    "dbname": os.environ.get('POSTGRES_DATABASE'),
     "user": os.environ.get('POSTGRES_USER'),
     "password": os.environ.get('POSTGRES_PASSWORD'),
-    "host": "localhost",
+    "host": os.environ.get('POSTGRES_HOST'),
     "port": 5432
 }

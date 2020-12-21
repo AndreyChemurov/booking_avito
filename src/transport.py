@@ -64,7 +64,7 @@ def hotel_create(r: RequestHotelCreate) -> ResponseHotelCreate:
         )
 
     # Бизнес-логика возвращает идентификатор номера отеля
-    identifier = h_create(r.description, r.price)
+    identifier = int(h_create(r.description, r.price))
 
     return ResponseHotelCreate(identifier=identifier)
 
@@ -90,7 +90,7 @@ def hotel_remove(r: RequestHotelRemove) -> ResponseHotelRemove:
         )
 
     # Бизнес-логика возвращает идентификатор удаленного номера отеля
-    identifier = h_remove(r.identifier)
+    identifier = int(h_remove(r.identifier))
 
     return ResponseHotelRemove(identifier=identifier)
 
@@ -120,12 +120,7 @@ def hotel_list(r: RequestHotelList) -> ResponseHotelList:
             detail=HTTP_400_WRONG_PARAMS
         )
 
-    # Бизнес-логика возвращает список номеров отеля
-    # Каждая комната состоит из:
-    #   1. "room_id": ID номера отеля.
-    #   2. "description": текстовое описание.
-    #   3. "price": цена за ночь.
-    #   4. "date_created": дата добавления номера в отель.
+    # Бизнес-логика возвращает список номеров отеля (лист из room_id)
     rooms = h_list(r.sort)
 
     return ResponseHotelList(rooms=rooms)
@@ -149,14 +144,14 @@ def bookings_create(r: RequestBookingsCreate) -> ResponseBookingsCreate:
         r.date_start is None,
         r.date_end is None,
 
-        # Нельзя зарбронировать номер раньше, чем выселиться из него
         isinstance(r.identifier, int) and r.identifier <= 0,
+
+        # Нельзя зарбронировать номер раньше, чем выселиться из него
         (
-                not isinstance(r.date_start, date) and
-                not isinstance(r.date_end, date) and
+                isinstance(r.date_start, date) and
+                isinstance(r.date_end, date) and
                 r.date_end < r.date_start
         ),
-        # Нельзя зарбронировать номер раньше, чем выселиться из него
     ]):
         raise HTTPException(
             status_code=400,
@@ -164,7 +159,7 @@ def bookings_create(r: RequestBookingsCreate) -> ResponseBookingsCreate:
         )
 
     # Бизнес-логика возвращает идентификатор созданной брони
-    identifier = b_create(r.identifier, r.date_start, r.date_end)
+    identifier = int(b_create(r.identifier, r.date_start, r.date_end))
 
     return ResponseBookingsCreate(identifier=identifier)
 
@@ -190,7 +185,7 @@ def bookings_remove(r: RequestBookingsRemove) -> ResponseBookingsRemove:
         )
 
     # Бизнес-логика возвращает идентификатор удаленной брони
-    identifier = b_remove(r.identifier)
+    identifier = int(b_remove(r.identifier))
 
     return ResponseBookingsRemove(identifier=identifier)
 
@@ -217,9 +212,9 @@ def bookings_list(r: RequestBookingsList) -> ResponseBookingsList:
 
     # Бизнес-логика возвращает список броней номера отеля
     # Каждая бронь имеет:
-    #   1. идентификатор
-    #   2. дата начала
-    #   3. дата окончания
+    #   1. "booking_id" - идентификатор
+    #   2. "date_start" - дата начала
+    #   3. "date_end" - дата окончания
     # Все брони отстортированы по дате начала
     bookings = b_list(r.identifier)
 
